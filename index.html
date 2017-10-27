@@ -1,4 +1,3 @@
-
 <html>
 <head>
  
@@ -246,52 +245,99 @@ function success(data){
          } 
     }
   }
-  for ( var i=0;i<data.events.length;i++){
-    if ( data.events[i].location == 'WSA' ||
-      data.events[i].location ==  'West Side Arena'){
-        var table = document.getElementById("rooms");
-        var row = table.insertRow();
-        var cell1 = row.insertCell(0);// time
-        var cell2 = row.insertCell(1);// home
-        var cell3 = row.insertCell(2);// home locker
-        var cell4 = row.insertCell(3);// away
-        var cell5 = row.insertCell(4);// away locker
-
-        var startTime = new Date(data.events[i].start_dt);
+  
+  
+  var table = document.getElementById("rooms");
+  var rowCount = table.rows.length;
+  var row;   //= table.insertRow();
+  var cell1; //= row.insertCell(0);// time
+  var cell2; //= row.insertCell(1);// home
+  var cell3; //= row.insertCell(2);// home locker
+  var cell4; //= row.insertCell(3);// away
+  var cell5; //= row.insertCell(4);// away locker
+  var count = 0;
+  
+  	
+  
+  
+  for ( var i=0;i<data.events.length;i++)
+  {
+	if ( data.events[i].location == 'WSA' || data.events[i].location ==  'West Side Arena')
+	{       
+		var startTime = new Date(data.events[i].start_dt);
         var endTime = new Date(data.events[i].end_dt);
+    	var showStart = now.addHours(-1);
+    	var showStop = new Date(endTime);
+    	
+    	
+    	showStop.setMinutes ( showStop.getMinutes() + 30 );
+    	
+    	
+       // if (  ( endTime < today.addHours(-1) ||   startTime > now.addHours(5)  )
+    	if ((count < 4 && now < showStop) 
+    		&& ( getParameterByName('day') == null )) 
+    	{
+            //console.log('Hiding:' + data.events[i].who);
+            //console.log('now:' + today);
+            //row.className = "hide-row";
+            //row.hide();
+            count = count + 1;
+            
+            row = table.insertRow();
+        	cell1 = row.insertCell(0);// time
+        	cell2 = row.insertCell(1);// home
+        	cell3 = row.insertCell(2);// home locker
+        	cell4 = row.insertCell(3);// away
+        	cell5 = row.insertCell(4);// away locker
+        	row.setAttribute('height', '100')
+        	cell1.style.fontSize = "25px";
+			cell2.style.fontSize = "25px";
+			cell3.style.fontSize = "25px";
+			cell4.style.fontSize = "25px";
+			cell5.style.fontSize = "25px";
+		
         
-        if (  ( endTime < today.addHours(-1) ||   startTime > now.addHours(5)  ) 
-              && ( getParameterByName('day') == null )  
-           ) {
-            console.log('Hiding:' + data.events[i].who);
-            console.log('now:' + today);
-            row.className = "hide-row";
-        }
-        if (1==1 ) {
+        	
             cell1.innerHTML = startTime.format()  + "-" +  endTime.format();
-        } else {
-           
-        }
-        cell2.innerHTML = data.events[i].who;
-        cell3.innerHTML = odd? "1" : "2" ;
-         if (data.events[i].title.toLowerCase().indexOf(" vs ") >0 ) {
-          var s = data.events[i].title.toLowerCase().indexOf(" vs");
-          var s2 = data.events[i].title.toLowerCase().indexOf(" vs") + 3;
-          var home = data.events[i].title.substring(0,s);
-          var away = data.events[i].title.substring(s2);
-          cell2.innerHTML = home + " - <span style='font-size:75%'>" + data.events[i].who + "</span>";
+        	 
+        	cell2.innerHTML = data.events[i].who;
+        	cell3.innerHTML = odd? "1" : "2" ;
+         	if (data.events[i].title.toLowerCase().indexOf(" vs ") >0 )
+         	{
+          		var s = data.events[i].title.toLowerCase().indexOf(" vs");
+          		var s2 = data.events[i].title.toLowerCase().indexOf(" vs") + 3;
+          		var home = data.events[i].title.substring(0,s);
+          		var away = data.events[i].title.substring(s2);
+          		cell2.innerHTML = home + " - <span style='font-size:75%'>" + data.events[i].who + "</span>";
 
-          //cell4.innerHTML = "game>>>   " + data.events[i].title;
-          cell4.innerHTML = away;
-         } else {
-          cell4.innerHTML = data.events[i].title;
-         }
-        cell5.innerHTML = odd? "3" : "4" ;
-        odd = !odd;
-      }	
-    }
+          		//cell4.innerHTML = "game>>>   " + data.events[i].title;
+          		cell4.innerHTML = away;
+         	} 
+         	else 
+         	{
+          		cell4.innerHTML = data.events[i].title;
+         	}
+        	cell5.innerHTML = odd? "3" : "4" ;
+        	odd = !odd;
+      	}
+      	/*else
+      	{
+      		row = table.insertRow();
+        	cell1 = row.insertCell(0);// time
+        	cell1.innerHTML = startTime.format()  + "-" +  endTime.format();
+        	cell2 = row.insertCell(1);// home
+        	cell3 = row.insertCell(2);// home locker
+        	cell4 = row.insertCell(3);// away
+        	cell5 = row.insertCell(4);// away locker
+        	
+        	cell2.innerHTML = " - <span style='font-size:75%'>" + today.format() + "</span>";
+        	cell3.innerHTML = " - <span style='font-size:75%'>" + now.format() + "</span>";
+        }*/
+      		
+      }
+	}
 
-
+   
     setInterval(function() {
        // only refresh if connected 
        if (navigator.onLine) {

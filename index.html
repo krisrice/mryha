@@ -16,7 +16,7 @@
 <script>
 
 var CURRENT_DATA=null;
-
+var dateProvided = false;
 
 
 /*
@@ -162,8 +162,10 @@ function getParameterByName(name, url) {
 function getDay(){
   var day = getParameterByName('day');
   if ( day == null ){
+  	dateProvided = false;
     return new Date();
   } else {
+  	 dateProvided = true;
     return new Date(day);
   }
 }
@@ -215,15 +217,15 @@ function success(data){
 	
 	$("#today").html(today.format("fullDate"));
         
-        var now = new Date();
-        debug(now.format("longTime"));
+    var now = new Date();
+    debug(now.format("longTime"));
 
 	var todayStr = ( today.getMonth() + 1 )  + "/" + today.getDate() + "/" + ( today.getFullYear() - 2000)
-	//debug(todayStr);
+	//debug("TodayStr: " + todayStr);
 	var i = 1;
 	var dt;
-  var odd = true;
-  for ( var i=0;i<data.events.length;i++){
+  	var odd = true;
+  	for ( var i=0;i<data.events.length;i++){
     //console.log('Checking to Remove:' + data.events[i].title ) ;
      if ( data.events[i].all_day  ) {
           console.log('Removing:' + (data.events[i].title)) ;
@@ -234,17 +236,7 @@ function success(data){
            data.events.splice(i,1);
      }
   }
-  for ( var i=0;i<data.events.length;i++){
-    if ( ( data.events[i].location == 'WSA' ||
-           data.events[i].location ==  'West Side Arena') 
-          && data.events[i].who == 'LTS' ) {
-         console.log('LTS Day:' + i + ':' + ((i+1)%2) );
-         if ( (1+i)%2 != 0 ) {
-           odd = !odd;
-           console.log('Flipping:' + i + ':' + ((i+1)%2)  );
-         } 
-    }
-  }
+  
   
   
   var table = document.getElementById("rooms");
@@ -272,15 +264,8 @@ function success(data){
     	
     	showStop.setMinutes ( showStop.getMinutes() + 30 );
     	
-    	
-       // if (  ( endTime < today.addHours(-1) ||   startTime > now.addHours(5)  )
-    	if ((count < 4 && now < showStop) 
-    		&& ( getParameterByName('day') == null )) 
+    	if ((count < 4 && now < showStop) || dateProvided == true) 
     	{
-            //console.log('Hiding:' + data.events[i].who);
-            //console.log('now:' + today);
-            //row.className = "hide-row";
-            //row.hide();
             count = count + 1;
             
             row = table.insertRow();
@@ -289,7 +274,7 @@ function success(data){
         	cell3 = row.insertCell(2);// home locker
         	cell4 = row.insertCell(3);// away
         	cell5 = row.insertCell(4);// away locker
-        	row.setAttribute('height', '100')
+        	row.setAttribute('height', '100');
         	cell1.style.fontSize = "25px";
 			cell2.style.fontSize = "25px";
 			cell3.style.fontSize = "25px";
@@ -318,22 +303,8 @@ function success(data){
           		cell4.innerHTML = data.events[i].title;
          	}
         	cell5.innerHTML = odd? "3" : "4" ;
-        	odd = !odd;
-      	}
-      	/*else
-      	{
-      		row = table.insertRow();
-        	cell1 = row.insertCell(0);// time
-        	cell1.innerHTML = startTime.format()  + "-" +  endTime.format();
-        	cell2 = row.insertCell(1);// home
-        	cell3 = row.insertCell(2);// home locker
-        	cell4 = row.insertCell(3);// away
-        	cell5 = row.insertCell(4);// away locker
-        	
-        	cell2.innerHTML = " - <span style='font-size:75%'>" + today.format() + "</span>";
-        	cell3.innerHTML = " - <span style='font-size:75%'>" + now.format() + "</span>";
-        }*/
-      		
+      	}	
+      	odd = !odd;
       }
 	}
 

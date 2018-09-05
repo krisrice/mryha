@@ -144,6 +144,18 @@ dateFormat.i18n = {
 Date.prototype.format = function (mask, utc) {
     return dateFormat(this, mask, utc);
 };
+
+Date.prototype.addDays = function(days)
+{
+    var dat = new Date(this.valueOf());
+    dat.setDate(dat.getDate() + days);
+    return dat;
+}
+Date.prototype.addHours = function(h) {    
+   var dat = new Date(this.valueOf());
+   dat.setTime(dat.getTime() + (h*60*60*1000)); 
+   return dat;   
+}
 </script> 
 
 <script language="javascript">
@@ -168,17 +180,7 @@ function getDay(){
   }
 }
 
-Date.prototype.addDays = function(days)
-{
-    var dat = new Date(this.valueOf());
-    dat.setDate(dat.getDate() + days);
-    return dat;
-}
-Date.prototype.addHours = function(h) {    
-   var dat = new Date(this.valueOf());
-   dat.setTime(dat.getTime() + (h*60*60*1000)); 
-   return dat;   
-}
+
 
 
 function onLoad(){
@@ -193,7 +195,7 @@ function onLoad(){
           type: "GET",
           data: {
               "startDate": todayStr,
-              "endDate": todayStr,
+              "endDate": tomorrowStr,
           },
           headers: {
               "Teamup-Token": "256a4f25e4cc430c9b8c5d1cba1c2c7c2d23b3d1672eb2772da473d619b70e02",
@@ -224,16 +226,25 @@ function success(data){
 	var dt;
   var odd = true;
   for ( var i=0;i<data.events.length;i++){
-    //console.log('Checking to Remove:' + data.events[i].title ) ;
+    
      if ( data.events[i].all_day  ) {
-          console.log('Removing:' + (data.events[i].title)) ;
+            /*
+            * Nuke things marked for ALL DAY
+            */
+          console.log('Removing:ALL-DAY:' + (data.events[i].title)) ;
           data.events.splice(i,1);
      } else if ( ! ( data.events[i].location == 'WSA' ||
+           /*
+            * Nuke things NOT AT West side
+            */
            data.events[i].location ==  'West Side Arena')  ) {
-          console.log('Removing:' + (data.events[i].title)) ;
+           console.log('Removing: NOT-AT-WSA:' + (data.events[i].title)) ;
            data.events.splice(i,1);
      }
   }
+  /*
+  * Toggle LTS to always be in locker room 1 and 3
+  */
   for ( var i=0;i<data.events.length;i++){
     if ( ( data.events[i].location == 'WSA' ||
            data.events[i].location ==  'West Side Arena') 
@@ -249,12 +260,6 @@ function success(data){
   
   var table = document.getElementById("rooms");
   var rowCount = table.rows.length;
-  var row;   //= table.insertRow();
-  var cell1; //= row.insertCell(0);// time
-  var cell2; //= row.insertCell(1);// home
-  var cell3; //= row.insertCell(2);// home locker
-  var cell4; //= row.insertCell(3);// away
-  var cell5; //= row.insertCell(4);// away locker
   var count = 0;
   
   	
@@ -262,33 +267,30 @@ function success(data){
   
   for ( var i=0;i<data.events.length;i++)
   {
+      // ONLY WSA Events
 	if ( data.events[i].location == 'WSA' || data.events[i].location ==  'West Side Arena')
-	{       
+	{   // event start/end to javascript dates    
 		var startTime = new Date(data.events[i].start_dt);
         var endTime = new Date(data.events[i].end_dt);
+        // get -1 hour and + end time to have buffers around when to show
     	var showStart = now.addHours(-1);
     	var showStop = new Date(endTime);
     	
-    	
+    	// + 30 minutes post game to keep locker rooms up 
     	showStop.setMinutes ( showStop.getMinutes() + 30 );
     	
     	
-       // if (  ( endTime < today.addHours(-1) ||   startTime > now.addHours(5)  )
-    	if ((count < 4 && now < showStop) 
-    		&& ( getParameterByName('day') == null )) 
+    	if ( (count < 4 && now < showStop)  ) 
     	{
-            //console.log('Hiding:' + data.events[i].who);
-            //console.log('now:' + today);
-            //row.className = "hide-row";
-            //row.hide();
+            // track how many events
             count = count + 1;
             
-            row = table.insertRow();
-        	cell1 = row.insertCell(0);// time
-        	cell2 = row.insertCell(1);// home
-        	cell3 = row.insertCell(2);// home locker
-        	cell4 = row.insertCell(3);// away
-        	cell5 = row.insertCell(4);// away locker
+            var row = table.insertRow();
+        	var cell1 = row.insertCell(0);// time
+        	var cell2 = row.insertCell(1);// home
+        	var cell3 = row.insertCell(2);// home locker
+        	var cell4 = row.insertCell(3);// away
+        	var cell5 = row.insertCell(4);// away locker
         	row.setAttribute('height', '100')
         	cell1.style.fontSize = "25px";
 			cell2.style.fontSize = "25px";
@@ -302,10 +304,10 @@ function success(data){
         	 
         	cell2.innerHTML = data.events[i].who;
         	cell3.innerHTML = odd? "1" : "2" ;
-         	if (data.events[i].title.toLowerCase().indexOf(" vs ") >0 )
+         	if (data.events[i].title.toLowerCase().indexOf(" @ ") >0 )
          	{
-          		var s = data.events[i].title.toLowerCase().indexOf(" vs");
-          		var s2 = data.events[i].title.toLowerCase().indexOf(" vs") + 3;
+          		var s = data.events[i].title.toLowerCase().indexOf(" @");
+          		var s2 = data.events[i].title.toLowerCase().indexOf(" @") + 3;
           		var home = data.events[i].title.substring(0,s);
           		var away = data.events[i].title.substring(s2);
           		cell2.innerHTML = home + " - <span style='font-size:75%'>" + data.events[i].who + "</span>";
@@ -316,24 +318,13 @@ function success(data){
          	else 
          	{
           		cell4.innerHTML = data.events[i].title;
-         	}
+             }
+             /*
+             *  toggle locker rooms 
+             */
         	cell5.innerHTML = odd? "3" : "4" ;
         	odd = !odd;
-      	}
-      	/*else
-      	{
-      		row = table.insertRow();
-        	cell1 = row.insertCell(0);// time
-        	cell1.innerHTML = startTime.format()  + "-" +  endTime.format();
-        	cell2 = row.insertCell(1);// home
-        	cell3 = row.insertCell(2);// home locker
-        	cell4 = row.insertCell(3);// away
-        	cell5 = row.insertCell(4);// away locker
-        	
-        	cell2.innerHTML = " - <span style='font-size:75%'>" + today.format() + "</span>";
-        	cell3.innerHTML = " - <span style='font-size:75%'>" + now.format() + "</span>";
-        }*/
-      		
+      	}      		
       }
 	}
 

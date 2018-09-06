@@ -52,15 +52,14 @@ font-weight:normal;font-variant:small-caps;color:#000000;border: 5px solid #FF00
 	
 }
 .tab tr:nth-child(odd){ background-color:#ffffff; }
-.tab tr:nth-child(even)    { background-color:#999999; }.tab td{
+.tab tr:nth-child(even)    { background-color:#999999; }
+.tab td{
 	vertical-align:middle;
-	
-	
 	border:1px solid #000000;
 	border-width:0px 1px 1px 0px;
 	text-align:center;
 	padding:7px;
-	font-size:16px;
+	font-size:25px;
 	font-family:Arial;
 	font-weight:normal;
 	color:#000000;

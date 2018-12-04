@@ -52,7 +52,8 @@ function eventToRow(event){
 // on load....
 $(function() {
    var today = getDay();
-   var tomorrow = getDay().addDays(1);
+   var tomorrow = getEndDay().addDays(1);
+
 
     var todayStr =   today.getFullYear()  + "-"  + (today.getMonth() + 1 )  + "-" + today.getDate() ;
     var tomorrowStr =   tomorrow.getFullYear()  + "-"  + (tomorrow.getMonth() + 1 )  + "-" + tomorrow.getDate() ;

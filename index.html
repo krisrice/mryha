@@ -184,7 +184,7 @@ function success(data){
   for ( var i=0;i<data.events.length;i++)
   {
         var showStart = now.addHours(-1);        
-    	if ( (count < 4 && now <  data.events[i].showStop)  ) 
+    	if ( (( count < 4 && now <  data.events[i].showStop)) || getParameterByName("endday")   ) 
     	{
             // track how many events
             count = count + 1;
@@ -192,7 +192,7 @@ function success(data){
             $('#rooms tr:last').after(eventToRow(data.events[i]));
         	odd = !odd;
       	}      		      
-	}
+ }
 
    // do it all again
 

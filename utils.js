@@ -161,7 +161,7 @@ function getDay(){
 function getEndDay(){
   var endday = getParameterByName('endday');
   if ( endday == null ){
-    return new Date();
+    return getDay();
   } else {
     return new Date(endday);
   }

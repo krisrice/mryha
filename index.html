@@ -114,12 +114,18 @@ function success(data){
      }
 
      // scrub titles
+     // all variations of meaning at west side
+     // no consistancy here at all
      data.events[i].title=data.events[i].title.replace("at West Side Arena","");
      data.events[i].title=data.events[i].title.replace("Practice: Manchester Flames ","");
      data.events[i].title=data.events[i].title.replace("Practice: Manchester Flame ","");
 
     /*
     * scrub game home/away names out
+    *
+    * Check for Team A @ Team B
+    *           Team A vs Team B
+    * Remove Manchester Flame and Manchester Flames to get the base team name
     */
     if (data.events[i].title.toLowerCase().indexOf(" @ ") >0 ){
           		var s = data.events[i].title.toLowerCase().indexOf(" @");
@@ -146,7 +152,7 @@ function success(data){
     	// + 30 minutes post game to keep locker rooms up 
         data.events[i].showStop.setMinutes (  data.events[i].showStop.getMinutes() + 30 );
         
-        // locker rooms
+        // alternate locker rooms
         data.events[i].homeLocker = ( odd? "1" : "2" );
 
         data.events[i].awayLocker= ( odd ?  "3" : "4" );

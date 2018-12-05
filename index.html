@@ -98,12 +98,15 @@ function success(data){
     //
 
   for ( var i=0;i<data.events.length;i++){
+
+    var remove = false;
+
      if ( data.events[i].all_day  ) {
             /*
             * Nuke things marked for ALL DAY
             */
           console.log('Removing:ALL-DAY:' + (data.events[i].title)) ;
-          data.events.splice(i,1);
+          remove = true; 
      } else if ( ! ( data.events[i].location == 'WSA' ||
                      data.events[i].location ==  'West Side Arena')  ) {
            /*
@@ -111,72 +114,77 @@ function success(data){
             */
 
            console.log('Removing: NOT-AT-WSA:' + (data.events[i].title)) ;
-           data.events.splice(i,1);
+           remove = true; 
      }
 
         var isLockerRoomTagged=false;
+
         for ( var ii=0;ii<data.events[i].subcalendar_ids.length;ii++){
-            isLockerRoomTagged = data.events[i].subcalendar_ids[ii] == 2040675;
+            if ( data.events[i].subcalendar_ids[ii] == 2040675 ) {
+                isLockerRoomTagged = true;
+                break;
+            }
         }
         if ( ! isLockerRoomTagged ){
             console.log('Removing: NOT LOCKERROOM TAGGED:' + (data.events[i].title)) ;
-
-            data.events.splice(i,1);
+            remove = true; 
 
         }
+        if ( remove ){
+            data.events.splice(i,1);
+        } else {
+            // scrub titles
+            // all variations of meaning at west side
+            // no consistancy here at all
+            if  ( data.events[i] && data.events[i].title ){
+                data.events[i].title=data.events[i].title.replace("at West Side Arena","");
+                data.events[i].title=data.events[i].title.replace("Practice: Manchester Flames ","");
+                data.events[i].title=data.events[i].title.replace("Practice: Manchester Flame ","");
+            /*
+            * scrub game home/away names out
+            *
+            * Check for Team A @ Team B
+            *           Team A vs Team B
+            * Remove Manchester Flame and Manchester Flames to get the base team name
+            */
+            data.events[i].home = data.events[i].who;
+            if ( data.events[i].custom && data.events[i].custom.opponent_practice ){
+                data.events[i].away = data.events[i].custom.opponent_practice;
+            }
 
-     // scrub titles
-     // all variations of meaning at west side
-     // no consistancy here at all
-     if  ( data.events[i] && data.events[i].title ){
-        data.events[i].title=data.events[i].title.replace("at West Side Arena","");
-        data.events[i].title=data.events[i].title.replace("Practice: Manchester Flames ","");
-        data.events[i].title=data.events[i].title.replace("Practice: Manchester Flame ","");
-    /*
-    * scrub game home/away names out
-    *
-    * Check for Team A @ Team B
-    *           Team A vs Team B
-    * Remove Manchester Flame and Manchester Flames to get the base team name
-    */
-    data.events[i].home = data.events[i].who;
-    if ( data.events[i].custom && data.events[i].custom.opponent_practice ){
-        data.events[i].away = data.events[i].custom.opponent_practice;
-    }
+            if (data.events[i].title.toLowerCase().indexOf(" @ ") >0 ){
+                        var s = data.events[i].title.toLowerCase().indexOf(" @");
+                        var s2 = data.events[i].title.toLowerCase().indexOf(" @") + 3;
+                        
+                        data.events[i].home = data.events[i].title.substring(0,s);
+                        data.events[i].away = data.events[i].title.substring(s2);
+                        data.events[i].away = data.events[i].away.replace("Manchester Flame ","")
+                        data.events[i].away = data.events[i].away.replace("Manchester Flames ","")
+            }
 
-    if (data.events[i].title.toLowerCase().indexOf(" @ ") >0 ){
-          		var s = data.events[i].title.toLowerCase().indexOf(" @");
-          		var s2 = data.events[i].title.toLowerCase().indexOf(" @") + 3;
-                  
-                data.events[i].home = data.events[i].title.substring(0,s);
-                data.events[i].away = data.events[i].title.substring(s2);
-                data.events[i].away = data.events[i].away.replace("Manchester Flame ","")
-                data.events[i].away = data.events[i].away.replace("Manchester Flames ","")
-       }
+            if (data.events[i].title.toLowerCase().indexOf(" vs ") >0 ){
+                        var s = data.events[i].title.toLowerCase().indexOf(" vs");
+                        var s2 = data.events[i].title.toLowerCase().indexOf(" vs") + 3;
 
-       if (data.events[i].title.toLowerCase().indexOf(" vs ") >0 ){
-                var s = data.events[i].title.toLowerCase().indexOf(" vs");
-                var s2 = data.events[i].title.toLowerCase().indexOf(" vs") + 3;
+                        data.events[i].home = data.events[i].title.substring(0,s);
+                        data.events[i].away = data.events[i].title.substring(s2);
 
-                data.events[i].home = data.events[i].title.substring(0,s);
-                data.events[i].away = data.events[i].title.substring(s2);
+            }       
+            // event start/end to javascript dates    
+            data.events[i].startTime = new Date(data.events[i].start_dt);
+            data.events[i].endTime = new Date(data.events[i].end_dt);
+            data.events[i].showStop = new Date(data.events[i].endTime );
+                
+                // + 30 minutes post game to keep locker rooms up 
+                data.events[i].showStop.setMinutes (  data.events[i].showStop.getMinutes() + 30 );
+                
+                // alternate locker rooms
+                data.events[i].homeLocker = ( odd? "1" : "2" );
 
-       }       
-       // event start/end to javascript dates    
-       data.events[i].startTime = new Date(data.events[i].start_dt);
-       data.events[i].endTime = new Date(data.events[i].end_dt);
-       data.events[i].showStop = new Date(data.events[i].endTime );
-    	
-    	// + 30 minutes post game to keep locker rooms up 
-        data.events[i].showStop.setMinutes (  data.events[i].showStop.getMinutes() + 30 );
-        
-        // alternate locker rooms
-        data.events[i].homeLocker = ( odd? "1" : "2" );
-
-        data.events[i].awayLocker= ( odd ?  "3" : "4" );
-        odd=!odd;
-    }
-
+                data.events[i].awayLocker= ( odd ?  "3" : "4" );
+                odd=!odd;
+            }
+        } 
      
   }
   /*

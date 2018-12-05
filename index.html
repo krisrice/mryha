@@ -114,6 +114,17 @@ function success(data){
            data.events.splice(i,1);
      }
 
+        var isLockerRoomTagged=false;
+        for ( var ii=0;ii<data.events[i].subcalendar_ids.length;ii++){
+            isLockerRoomTagged = data.events[i].subcalendar_ids[ii] == 2040675;
+        }
+        if ( ! isLockerRoomTagged ){
+            console.log('Removing: NOT LOCKERROOM TAGGED:' + (data.events[i].title)) ;
+
+            data.events.splice(i,1);
+
+        }
+
      // scrub titles
      // all variations of meaning at west side
      // no consistancy here at all

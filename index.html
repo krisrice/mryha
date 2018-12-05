@@ -29,7 +29,7 @@ function eventToRow(event){
         ret = ret + "<td>" + event.startTime.format(isToday?"":"mmm d /h:M")  + "-" +  event.endTime.format(); + "</td>";
         //home
         if ( isGame ) {
-            ret = ret + "<td>" + event.home + " - <span style='font-size:75%'>" + event.who + "</span>" + "</td>"
+            ret = ret + "<td>" + event.home + "</span>" + "</td>"
         } else {
             ret = ret + "<td>" + event.who+ "</td>";
         }
@@ -128,6 +128,11 @@ function success(data){
     *           Team A vs Team B
     * Remove Manchester Flame and Manchester Flames to get the base team name
     */
+    data.events[i].home = data.events[i].who;
+    if ( data.events[i].custom && data.events[i].custom.opponent_practice ){
+        data.events[i].away = data.events[i].custom.opponent_practice;
+    }
+
     if (data.events[i].title.toLowerCase().indexOf(" @ ") >0 ){
           		var s = data.events[i].title.toLowerCase().indexOf(" @");
           		var s2 = data.events[i].title.toLowerCase().indexOf(" @") + 3;
@@ -137,6 +142,7 @@ function success(data){
                 data.events[i].away = data.events[i].away.replace("Manchester Flame ","")
                 data.events[i].away = data.events[i].away.replace("Manchester Flames ","")
        }
+
        if (data.events[i].title.toLowerCase().indexOf(" vs ") >0 ){
                 var s = data.events[i].title.toLowerCase().indexOf(" vs");
                 var s2 = data.events[i].title.toLowerCase().indexOf(" vs") + 3;

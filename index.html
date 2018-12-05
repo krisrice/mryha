@@ -128,10 +128,10 @@ function success(data){
      // scrub titles
      // all variations of meaning at west side
      // no consistancy here at all
-     data.events[i].title=data.events[i].title.replace("at West Side Arena","");
-     data.events[i].title=data.events[i].title.replace("Practice: Manchester Flames ","");
-     data.events[i].title=data.events[i].title.replace("Practice: Manchester Flame ","");
-
+     if  ( data.events[i] && data.events[i].title ){
+        data.events[i].title=data.events[i].title.replace("at West Side Arena","");
+        data.events[i].title=data.events[i].title.replace("Practice: Manchester Flames ","");
+        data.events[i].title=data.events[i].title.replace("Practice: Manchester Flame ","");
     /*
     * scrub game home/away names out
     *
@@ -175,6 +175,7 @@ function success(data){
 
         data.events[i].awayLocker= ( odd ?  "3" : "4" );
         odd=!odd;
+    }
 
      
   }

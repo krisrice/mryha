@@ -64,6 +64,7 @@ $(function() {
           data: {
               "startDate": todayStr,
               "endDate": tomorrowStr,
+              "subcalendarId[]": 2040675
           },
           headers: {
               "Teamup-Token": "256a4f25e4cc430c9b8c5d1cba1c2c7c2d23b3d1672eb2772da473d619b70e02",
@@ -105,7 +106,7 @@ function success(data){
             /*
             * Nuke things marked for ALL DAY
             */
-          console.log('Removing:ALL-DAY:' + (data.events[i].title)) ;
+          console.log('Removing:ALL-DAY:' + JSON.stringify(data.events[i])) ;
           remove = true; 
      } else if ( ! ( data.events[i].location == 'WSA' ||
                      data.events[i].location ==  'West Side Arena')  ) {
@@ -113,7 +114,7 @@ function success(data){
             * Nuke things NOT AT West side
             */
 
-           console.log('Removing: NOT-AT-WSA:' + (data.events[i].title)) ;
+           console.log('Removing: NOT-AT-WSA:' + JSON.stringify(data.events[i])) ;
            remove = true; 
      }
 
@@ -126,11 +127,12 @@ function success(data){
             }
         }
         if ( ! isLockerRoomTagged ){
-            console.log('Removing: NOT LOCKERROOM TAGGED:' + (data.events[i].title)) ;
+            console.log('Removing: NOT LOCKERROOM TAGGED:' + JSON.stringify(data.events[i])) ;
             remove = true; 
 
         }
         if ( remove ){
+            console.log("^^^" + data.events[i].title);
             data.events.splice(i,1);
         } else {
             // scrub titles

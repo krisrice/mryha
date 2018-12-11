@@ -82,6 +82,8 @@ $(function() {
 
 // proccess the results
 function success(data){
+    console.log(data);
+
     CURRENT_DATA = data;
 	var today = getDay();
 	
@@ -99,6 +101,7 @@ function success(data){
     //
 
   for ( var i=0;i<data.events.length;i++){
+    console.log(">>>:" + data.events[i].title + ":"  +">>>")
 
     var remove = false;
 
@@ -132,9 +135,10 @@ function success(data){
 
         }
         if ( remove ){
-            console.log("^^^" + data.events[i].title);
-            data.events.splice(i,1);
+            data.events[i].display=false;
         } else {
+            data.events[i].display=true;
+
             // scrub titles
             // all variations of meaning at west side
             // no consistancy here at all
@@ -142,6 +146,7 @@ function success(data){
                 data.events[i].title=data.events[i].title.replace("at West Side Arena","");
                 data.events[i].title=data.events[i].title.replace("Practice: Manchester Flames ","");
                 data.events[i].title=data.events[i].title.replace("Practice: Manchester Flame ","");
+            }
             /*
             * scrub game home/away names out
             *
@@ -172,20 +177,23 @@ function success(data){
                         data.events[i].away = data.events[i].title.substring(s2);
 
             }       
+
+                
             // event start/end to javascript dates    
             data.events[i].startTime = new Date(data.events[i].start_dt);
             data.events[i].endTime = new Date(data.events[i].end_dt);
             data.events[i].showStop = new Date(data.events[i].endTime );
-                
-                // + 30 minutes post game to keep locker rooms up 
-                data.events[i].showStop.setMinutes (  data.events[i].showStop.getMinutes() + 30 );
-                
+
+            // + 30 minutes post game to keep locker rooms up 
+            data.events[i].showStop.setMinutes (  data.events[i].showStop.getMinutes() + 30 );
+
+
                 // alternate locker rooms
                 data.events[i].homeLocker = ( odd? "1" : "2" );
 
                 data.events[i].awayLocker= ( odd ?  "3" : "4" );
                 odd=!odd;
-            }
+            
         } 
      
   }
@@ -212,14 +220,18 @@ function success(data){
   for ( var i=0;i<data.events.length;i++)
   {
         var showStart = now.addHours(-1);        
-    	if ( (( count < 4 && now <  data.events[i].showStop)) || getParameterByName("endday") != null  ) 
+    	if (  data.events[i].display &&  ((( count < 4 && now <  data.events[i].showStop)) || getParameterByName("endday") != null  ) )
     	{
             // track how many events
             count = count + 1;
             // add to the page
+            console.log("Adding :" + data.events[i].title + ":" +data.events[i].who )
             $('#rooms tr:last').after(eventToRow(data.events[i]));
         	odd = !odd;
-      	}      		      
+      	} else {
+            console.log("-NOT-Adding :" + data.events[i].title + ":" +data.events[i].who +">" + data.events[i].showStop)
+          }  
+
  }
 
    // do it all again

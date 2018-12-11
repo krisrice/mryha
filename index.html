@@ -82,7 +82,6 @@ $(function() {
 
 // proccess the results
 function success(data){
-    console.log(data);
 
     CURRENT_DATA = data;
 	var today = getDay();
@@ -101,7 +100,6 @@ function success(data){
     //
 
   for ( var i=0;i<data.events.length;i++){
-    console.log(">>>:" + data.events[i].title + ":"  +">>>")
 
     var remove = false;
 

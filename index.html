@@ -48,6 +48,7 @@ function eventToRow(event){
         return ret + "</tr>";
 
 }
+var tomorrowStr;
 
 // on load....
 $(function() {
@@ -56,7 +57,7 @@ $(function() {
 
 
     var todayStr =   today.getFullYear()  + "-"  + (today.getMonth() + 1 )  + "-" + today.getDate() ;
-    var tomorrowStr =   tomorrow.getFullYear()  + "-"  + (tomorrow.getMonth() + 1 )  + "-" + tomorrow.getDate() ;
+    tomorrowStr =   tomorrow.getFullYear()  + "-"  + (tomorrow.getMonth() + 1 )  + "-" + tomorrow.getDate() ;
 
       $.ajax({
           url: "https://api.teamup.com/ksed84b74bfc8185fb/events",
@@ -153,6 +154,7 @@ function success(data){
             * Remove Manchester Flame and Manchester Flames to get the base team name
             */
             data.events[i].home = data.events[i].who;
+
             if ( data.events[i].custom && data.events[i].custom.opponent_practice ){
                 data.events[i].away = data.events[i].custom.opponent_practice;
             }
@@ -177,14 +179,6 @@ function success(data){
             }       
 
                 
-            // event start/end to javascript dates    
-            data.events[i].startTime = new Date(data.events[i].start_dt);
-            data.events[i].endTime = new Date(data.events[i].end_dt);
-            data.events[i].showStop = new Date(data.events[i].endTime );
-
-            // + 30 minutes post game to keep locker rooms up 
-            data.events[i].showStop.setMinutes (  data.events[i].showStop.getMinutes() + 30 );
-
 
                 // alternate locker rooms
                 data.events[i].homeLocker = ( odd? "1" : "2" );
@@ -217,6 +211,15 @@ function success(data){
   
   for ( var i=0;i<data.events.length;i++)
   {
+        // event start/end to javascript dates    
+        data.events[i].startTime = new Date(data.events[i].start_dt);
+        data.events[i].endTime = new Date(data.events[i].end_dt);
+        data.events[i].showStop = new Date(data.events[i].endTime );
+
+        // + 30 minutes post game to keep locker rooms up 
+        data.events[i].showStop.setMinutes (  data.events[i].showStop.getMinutes() + 30 );
+
+
         var showStart = now.addHours(-1);        
     	if (  data.events[i].display &&  ((( count < 4 && now <  data.events[i].showStop)) || getParameterByName("endday") != null  ) )
     	{
@@ -228,7 +231,16 @@ function success(data){
         	odd = !odd;
       	} else {
             console.log("-NOT-Adding :" + data.events[i].title + ":" +data.events[i].who +">" + data.events[i].showStop)
-          }  
+        }  
+        var tomorrow = getEndDay().addDays(1);
+        var linkDate =   (tomorrow.getMonth() + 1 )  + "/" +  (tomorrow.getDate()) + "/" + tomorrow.getFullYear() ;
+        console.log(linkDate)
+        $("#next").attr("href", "index.html?day="  + linkDate)
+        var yesterday = getEndDay().addDays(-1);
+        var linkDate =   (yesterday.getMonth() + 1 )  + "/" +  (yesterday.getDate()) + "/" + yesterday.getFullYear() ;
+        console.log(linkDate)
+        $("#prev").attr("href", "index.html?day="  + linkDate)
+
 
  }
 
@@ -265,6 +277,8 @@ function success(data){
 </table>
 <div id="log" style="display:block;">
 </div>
+<a id="prev" style="text-decoration: none" href="index.html">∵</a>
+<a id="next" style="text-decoration: none" href="index.html">∴</a>
 </body>
 </html>
 
